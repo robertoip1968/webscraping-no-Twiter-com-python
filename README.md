@@ -22,6 +22,7 @@
     resposta = cliente.search_recent_tweets(query='eleição',max_results=100,start_time=start,end_time=end)
     dados = resposta.data
     type(dados)
+    
 ## Apresentação dos dados coletados em colunas
     if dados:
       tweet_data = []
@@ -36,16 +37,19 @@
     else:
       print("Nenhum tweet encontrado.")
 
-## Se for exportar os dados para um banco de dados SQLite 
+## Exportação dos dados para um banco de dados SQLite 
     ### Criação e Conexão com o banco de dados 
       con = sqlite3.connect('BD_scrapping.db')
     ### Criação do cursor (para acessar / inserir dados do bd)
       cur = con.cursor()
+    ### Exclusão da tabela 'registros' se ela existir
+      cur.execute("DROP TABLE IF EXISTS registros")
     ### Criação da tabela de dados
-      cur.execute('CREATE TABLE registros (texto TEXT,RT TEXT)')
+      cur.execute('CREATE TABLE registros (Texto_Tweet TEXT,Retweet TEXT)')
     ### Apagar todos os dados da tabela 'registros'
       cur.execute('DELETE FROM registros')
       con.commit()
+      
 ## inserção dos dados obtidos na tabela "registros"
     for i in dados:
         texto = i.text
@@ -54,7 +58,38 @@
         else:
             RT = 'N'
 
-        cur.execute("INSERT INTO registros (texto,RT) VALUES (?,?)",(texto,RT))
+        cur.execute("INSERT INTO registros (Texto_Tweet,Retweet) VALUES (?,?)",(texto,RT))
 
     con.commit()
-      
+    
+## Exportação dos dados  para Excel
+    resultados.to_excel('resultados_twitter.xlsx', index=False) 
+
+## Apresentação do Total de Retweets (RT = "S") e Total de Tweets Originais (RT = "N")
+
+    # Contar o total de retweets e tweets originais
+    total_retweets = resultados[resultados['Retweet'] == 'S'].shape[0]
+    total_tweets_originais = resultados[resultados['Retweet'] == 'N'].shape[0]
+
+    # Imprimir os totais
+    print(f"Total de Retweets (Retweet = 'S'): {total_retweets}")
+    print(f"Total de Tweets Originais (Retweet = 'N'): {total_tweets_originais}")
+
+## Apresentação de quantas vezes aparecem as Palavras e o percentual (Trump, bolsonaro, kamala)
+
+    # Contar a frequência das palavras "Trump", "Bolsonaro" e "Kamala"
+    trump_count = resultados['Texto_Tweet'].str.contains('Trump', case=False).sum()
+    bolsonaro_count = resultados['Texto_Tweet'].str.contains('Bolsonaro', case=False).sum()
+    kamala_count = resultados['Texto_Tweet'].str.contains('Kamala', case=False).sum()
+
+    # Calcular o percentual de cada palavra em relação ao total de tweets
+    total_tweets = len(resultados)
+    trump_percentage = (trump_count / total_tweets) * 100 if total_tweets > 0 else 0
+    bolsonaro_percentage = (bolsonaro_count / total_tweets) * 100 if total_tweets > 0 else 0
+    kamala_percentage = (kamala_count / total_tweets) * 100 if total_tweets > 0 else 0
+
+    # Imprimir os resultados
+    print(f"Frequência de 'Trump': {trump_count} ({trump_percentage:.2f}%)")
+    print(f"Frequência de 'Bolsonaro': {bolsonaro_count} ({bolsonaro_percentage:.2f}%)")
+    print(f"Frequência de 'Kamala': {kamala_count} ({kamala_percentage:.2f}%)")
+

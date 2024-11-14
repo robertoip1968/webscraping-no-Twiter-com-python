@@ -12,6 +12,13 @@
     access_token = '1570038060439437312-FprLkQp127CQt27AhmMvfDgnJfjamH'
     access_token_secret = 'fm1LzrTFKDspDX9du6BCYMZjiGsd7F27P3PAX2EJgn8f6'
 
+## Criação das credenciais de acesso ao Twiter/X
+    consumer_key = 'sua chave de acesso do twiter/X'
+    consumer_secret = 'sua chave secreta do twiter/X'
+    bearer_token = 'seu bearer token do twiter/X'
+    access_token = 'seu access token do twiter/X'
+    access_token_secret = 'seu access token secreto do twiter/X'
+
 ## Criação do Cliente para acessar o Twiter/X
     cliente = tw.Client(bearer_token,consumer_key, consumer_secret, access_token, access_token_secret)
 
